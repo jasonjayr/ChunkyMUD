@@ -1,0 +1,67 @@
+                        The MISCELLANEOUS Document
+                        --------------------------
+  ----------------------------
+  ChunkyMUD Contributor-People
+  ----------------------------
+
+  Name           - Email                 - Current Projects
+  ----------------------------------------------------------
+  malander       - tarael200@aol.com     - "Mr. FastFingers"
+  sandrews       - sandrews@ccs.neu.edu  - Builder of 'Confex FuNhOuSe'?
+  Chaos404       - core@databurst.org    - Socials coder?
+  AaronCheez     - socko4@netzero.net    - Logging system?
+  Scott McCurry  - ctssam@cts.com        - The Everything Guy!
+
+  Note: Some of the team may not be actively contributing anything.
+  
+  --------------------
+  List of Contributors
+  --------------------
+  (knowingly or unknowingly)
+
+  - The person who did the wonderful obfuscation that displays the
+    Camel in ASCII art. I borrowed this for the 'goodbye' message. Thank you,
+    and tell me your name if you read this, so that I might update this file!
+  - Aaron Sokoloski (AaronCheez on AIM), Mike Lambert (mongomike1 on AIM)
+    for answering some miscellaneous questions I had.
+  - mystik for the 'uptime' code (well, mostly for his sample calculations
+    since I hacked the rest of it apart.)
+  - The "Invincible Desert Dragon Sword Goddess" for inspiring me to code the
+    'amoo' social.
+  
+  -------------------------------------
+  ChunkyMUD Code Formatting Conventions
+  -------------------------------------
+
+  - 2-column indent on code.
+  - No space before semicolon.
+  - No space around parentheses:
+      push(@array, $scalar);
+  - On nested function calls (print join('', map { $_++ } @somearray)) 
+    parentheses should be applied where applicable, for readability.
+  - Uncuddled braces, and lined up with keyword that starts them
+    if ($x eq $y) {
+      print "Word up, dawg! \n";
+    } else {
+      ...
+    }
+
+  For the most part, I'm pretty anal about code formatting .. Some
+  statements like open I will use a space on, for some reason.
+  
+  --------------------------------------  
+  Miscellaneous Notes
+  --------------------------------------
+
+  - Though it should be obvious, it must be noted that the MUD runs quite a bit
+    faster with warnings turned OFF. So when putting this up on a server for others
+    to use, this should be the thing to do. (Otherwise, if developing the code,
+    turn warnings ON ;-)
+  - There are two ways of handling client requests, the possibly-better-but-maybe-not
+    (i.e., alpha, untested mode) code for it is commented out, and will be tested when
+    we get a server to playtest.
+  - Command-processing speed: Playing the game solo, and just spamming commands, I've
+    counted it processing 14 requests/second. Considering the fact that to count this
+    I had to throw a warn statement in handle() that got called on each request (which
+    will severely slow the code down) I think it is safe to say that this code is 
+    pretty good ;)

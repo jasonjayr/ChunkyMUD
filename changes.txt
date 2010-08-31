@@ -1,0 +1,305 @@
+                        -----------------------
+                        ChangeLog for ChunkyMUD
+                        -----------------------
+ 
+Changes starting with 0.06:
+---------------------------
+- Removal of '::main' from everywhere in the code.
+- New help system is in.
+- Centralized most of the movement code into move_player() in commands.pl
+  and cleaned up the north(), south(), east(), etc., movement command code.
+- Coded following accessor methods:
+  State(), StateArgs(). Room(), Name(), Brief(), Autoexit(), Refresh()
+- Tons of code cleanups.
+- Updated finish_init_player() so it utilizes the new accessor methods.
+- Finally got 'talk' working again after all the cleanups.
+- Updated start_init_player() so it utilizes accessor methods.
+- Wrote Timer.pm - works fine, kinda neat. Kinda a kludge. But it works!
+  Now we just need psuedo-lag..
+- ChunkyMUD-specific QueryHelp mod to do convert_to_inet() on help topics
+  while loading them instead of on-the-fly.
+
+Changes for 0.07:
+-----------------
+- Cleaned up a bit more of the code, addition of format_name() to misc.pl
+  which does ucfirst(lc($name)) ..
+- Fixed the register users code.
+- Addition of Password.pm and getFile()
+- Severe cleaning up of the code. Player.pm now exists, and has gained
+  quite a bit in size.
+- New xnames-loading code.
+- New login registration code.
+- Fixed up state-table logic in handle().
+- Phased out several methods that were useless.
+- Bugfix in Password::validate().
+- Double-logins bug is finally squashed.
+- Fixed some problems with the Player.pm accessor methods.
+- New helpfiles.
+- World code is decent for now. Built about 10 rooms.
+- Fixed up the comand code.
+- Interface enhancements - when you move from room to room it sends out
+  messages stating that you've moved..
+
+Changes for 0.07r1:
+-------------------
+- Bugfix in 'tell'.
+- New 'welcome' message.
+- Cleaned up directory structure.
+- Experimental changes to the code that processes player commands..
+- Bugfix with the 'quit' memory leak.
+- Smarter return values for Player::Room().
+- Bugfix in command-processing code.
+- Slight change in the 'say' command.
+- Better sanity-checking + bugfix in the registration code.
+- Bit of a tweak in the 'help' command.
+- Coded 'passwd' command.
+- Minor cleanups in Password.pm
+- Began coding 'playerfile loading/saving' code.
+- Completely phased out the unused 'refresh' code.
+- Another bugfix in the 'help' command.
+- Addition of 'sdebug' as one of the debugging commands.
+- Bugfixes in 'brief' and 'autoexit'.
+- Playerfile loading/saving code declared functional! :-)
+
+Changes for v0.07r2:
+--------------------
+- Player::Gender() method. Gender-entering spot in the registration code.
+  It appears to be working, as well.
+- Added damroll() to misc.pl
+- Changed the Player::Room() method to Curroom(), so that it is
+  more consistent with Curzone(), and the new playerfile load/save code.
+- Changed all the method calls in the code from Room to Curroom().
+- Bugfix in 'exits'.
+- Cleaning done in several subroutines:
+  Player::StateArgs(), Player::finish_init_player(), Player::remove(),
+  comm.pl::close_connect().
+- Refixed the double-logins bug. By cleaning finish_init_player(), I broke
+  some code.
+- Minor changes in getPlayersInRoom() and getClientsInRoom().
+- Bugfix in save_player() so that a bad login no longer crashes the MUD.
+- Did a similar 'fix' in load_player() though I am not sure a bug exists.
+- Two tiny bugfixes in Password.pm
+- Addition of uptime() from mystik. I hacked this apart to display a nicer
+  uptime, and with his help, (I'm not good at time calculations. It hurts
+  my brain ;-) added a seconds display. 
+- 'score' command.
+
+Changes for v0.07r3:
+--------------------
+- Socials code is in. Now we just need actual socials.
+- Updated all the command-subroutine names so they are prefixed with 'c_'.
+- Fixed messages for talk.
+- Updated 'who' command.
+- Added 'emote' command.
+- Fixes in all the communication subroutines in comm.pl.
+- 'tell' now works when people are in different rooms
+- New Player.pm methods: Title() and getNamestr()
+- Bugfix with the 'brief' command.
+- A few teensy minor updates in the 'Confex FunHoUSe'.
+- Updates in move_player().
+- Illusionary walls!
+- Fixed Timer.pm
+- The new 'dispatch table' code is in. This makes it much, much easier
+to add new state handlers.
+
+Changes for v0.07r4 (internal):
+-------------------------------
+- Various updates to Timer.pm
+- format_name() moved to Player.pm.
+- Added World.pm as a cleaner, more organized interface to the World data:
+  moved display_exits() and expandExit() there, new default-port
+  code.
+- nonblock() moved to comm.pl, since it is communications-related.
+- Eliminated db.pl
+- Misc code cleanups
+- Wrote new command-processing code with 'abbrev' functionality.
+- Finished up abbrev code: Player->Abbrev() method, display changes in
+  'score' and 'sdebug'.
+- Wrote new zone code:
+  - Updated all the methods in World.pm 
+  - Coded new methods in World.pm to be used as wrappers for setting
+    up zone/room data (room titles, descs, exits.. etc). These are all
+    prefixed with 'z_' in their method name.
+- Updated Player->Curroom(), getClientsInRoom(), and getPlayersInRoom().
+- Updated the communication routines to work with the new zone code.
+- Updated cleanup_rooms() for the new zone code.
+- Fixes to the communication commands (talk, whisper, etc.) so that you
+  cannot talk/whisper/etc with someone whose not in the same zone/room as
+  you, instead of just room.
+- Smarter 'who' code.
+- Addition of ' and , as aliases to 'say' and 'emote'.
+- Bugfix in title code.
+- Started a new zone - Village of the Camel
+- New zone-loading code in World->load_world().
+- 'hard links' code is in.
+- Added getPlayersInZone() and getClientsInZone().
+- Wrote the 'where' command.
+- Added 2 new communication routines, (send_to_zone() and send_to_zone_except())
+  and fixed send_to_room(). Also made minor changes to most of the comm.
+  routines *again*. Someday they'll be perfect, till then, they bite.
+- Rewrote the 'shout' command.
+- *MAJOR* revamp of a huge portion of subroutine parameters. example:
+  send_to_room_except() required FIVE arguments to operate - a clientfrom,
+  clientto, curzone, curroom, and message. Now it requires 3 - curzone/
+  curroom have been removed and are snatched up using $player->Curzone(
+  $clientto), and so forth.
+- Quick rendition of the 'listzone' command.
+
+Changes in v0.07r5 (internal):
+------------------------------
+- Finally started making use of the timer code. Check out timers.pl.
+  Timer subroutines start with 't_'.
+- Playerfile-saving queue code is in, and uses timers (obviously).
+  It saves one player every 60 seconds.
+- Addition of defines.pl - subroutines are used as global constants
+  now!
+- Player entries in Player.pm objects are now tied to Tie::RefHash
+  so we can use references as keys.
+- Lag-out code added, Player->presence() method, plus lagout timer,
+  and entry in defines.pl.
+- Coded the 'amoo' social.
+- Addition of the 'utils' dir, and the 'codegen.pl' script for generating
+  a sorted list of subroutines from a bunch of code files. Also, added
+  the 'docs' dir which will contain all the documentation.
+- Data for the 'listzone' command is now generated at boot-time.
+- Cleanups and bugfixes all over the place:
+  - Eliminated start_init_player(). Changed finish_init_player() to 
+    init_player().
+  - Fixed it up so that the command prompt now displays when a player first
+    logs on, not after he has typed his first command.
+  - Password.pm has been updated so it's routines all give a return value.
+  - Fixed a memory leak in Player->remove(). It didn't remove players from
+    a Player object properly.
+  - Updated the uptime() routine so it now does proper pluralization.
+  - Minor fix in init.pl: load_xnames().
+  - Tweak in getFile().
+  - Quick audit of a large portion of the code, fixing many minor things
+    with the code (not bugs, just things I didn't like ;-)
+    
+Changes in v0.07r7:
+-------------------
+- Started coding objects:
+  - Objects now display in rooms they are located in.
+  - You may now 'look' at objects.
+  - Added 'REUSE' array for objects, wrote objDestroy(), and
+  - rewrote objCreate() to take advantage of the REUSE array.
+  - Added 'tap' and 'sacrifice' commands.
+  - Wrote the 'get', 'drop', and 'inventory' commands. They don't work right
+    at this point, unfortuneately.
+- Bugfixes/cleanups this release:
+  - Bugfix in c_help().
+  - c_tell(), c_whisper(), and c_talk() now lc() the name passed to them.
+  - Phased out sendmsg() and color.pl - What was I thinking?
+  - Slight tweak in st_command().
+- Added:
+  - Routines for the creation and setting of room data now contain sanity-
+    checking code.
+  - Command-line parsing code plus some basic options.
+  - parseString() as a simple template processor, and the 'welcome'
+    file now uses the VERSION constant.
+
+(note the new ChangeLog format)
+4/6/2001 
+    - Additions to the code:
+      - copyHash() routine to misc.pl (World->objClone() now uses it)
+      - 'drop' command
+      - Repeat Last Command (!) command.
+      - 'gameinfo' command, for fun.
+    - Fixes:
+      - 'get', 'inventory' commands
+      - command-line processing code that was added on the earlier changes
+        to v0.07r6
+      - Little fix on errormsg handling for QueryHelp->get(), more changes
+        to c_help() to accomodate it.
+      - Threw hacks in World->objInfo() and World->getObjectsInRoom() to prevent
+        silly memory leaks whenever a player moves into a room with an object.
+      - Three really stupid bugs:
+        - 'drop' wasn't working right.
+        - Player->manipInventory() had bugs in the code that deletes objects
+          from player Inventories, and also in the code that searches through
+          player inventories for particular objects...
+      - Two bugs - one each in c_talk() and c_whisper()...
+      - Another bug in manipInventory().
+      - Bugfix in c_inventory().
+    - Most of the world-loading routines now use logit() instead
+      of warn statements, to nag about their errors.
+    - Rearranged output of 'time'.
+    - Some code-cleanups in various commands..
+    - Eliminated $c_fields from the @commands structure.
+    - %xnames is now stored inside a World object, and accessed using the
+      xname() method.. 
+    - New utility script: coc.pl ... Quick-n-dirty code counter.
+    - Added Data::Dumper as an optional module to use, to ease some of the debugging
+      process.. Also added World->Debug().
+    - Bugfix for the memory leak problems that World->getObjectsInRoom() was causing..
+    - Began using a cheesy task-management system.. see tasks.txt
+    - Fixed task #9.
+    - Completed tasks 1 and 2.
+    - Shifted some code around in st_command() so that socials are checked first, before regular commands..
+      Sadly, I resorted to using a goto :-(
+
+Changes in v0.07r8:
+-------------------
+4/9/01: 
+		- Cleaned up some of the directory structure. While looking over the
+			venerable v0.01 code, I accidentally merged the trees... Oh well. No code
+			was lost..
+		- Forgot to mention that I've begun work on simplifying Config::Ini into
+			a smaller, easier-to-use module.. The code is in lib/Heavy_Devel/..
+		- Fixed 'who' - when on alone it displays 0 instead of your name, the latter being the current + correct behavior.
+		- Fixed problem with sending "Player leaves some-exit" messages to everyone but the player who is in the current room..
+		- Tweaks in:
+			- t_lagout()
+			- t_pfile_queue()
+			- Player->get_client()
+			- close_connect()
+			- Player->new(). Fixed a slight memory leak.
+			- st_waitpw(), st_register()
+		- Cleanups in:
+			- Timer->poll_events() - Removal of commented-out code, etc.
+			- st_command() - Removed $verbprocessed, simplified the while loop
+		- Removed the repeat-last-command code.. My braindead design was causing 
+			major memory leak problems. It will reappear at another time, when I am
+			am ready for it.
+		- Fixed another memory leak, this time in display_prompt().. Involved the 
+			call in handle()..
+		- Added a hack with st_command() and the call that uses it in handle()...
+			Basically it prevents the above memory leak from occuring.
+		- Minor cleanups, and fixes in st_register() so that only word characters 
+			are allowed in usernames when they are being registered.
+		- Began laying some of the roots that will become the trunk that is the
+			v0.07 code tree:
+			- Enhanced load_commands() so it has 2 fields per record, and integrates socials
+				into the mix with regular commands.. Also has the beginnings of wizard commands..
+			- Moved commands.pl and socials.pl into a new commands/ dir underneath lib/..
+4/10/01:
+			- Midnight recently came, so now I'm been working on the code over 2 separate days ;-)
+			- Modifications to chunky.pl's set of "require" statements.. New wizards.pl file, which
+				I am guessing will contain wizard commands code, and other miscellaneous
+				wizard code that does not fit in the Player.pm module..
+			- Phased out load_socials() and updated init() so it no longer calls it.
+			- Imported code submitted by Scott McCurry (ctssam@cts.com).. They handle the following:
+				- TELNET echo (So that when you type your password, it does not display !
+			  - Backspace-handling !
+					Thanks a ton, Scott! This code is GREATLY APPRECIATED!
+
+Changes in v0.07r9:
+-------------------
+4/10/01:
+ 		 - st_register() was cleaned up a little bit, and also 
+	   - st_waitpw()'s messages were tweaked slightly
+		 - Addition of World->objEffects(), "NOTAKE" effect signifying that objects cannot be picked up,
+			 and code in 'get' that makes use of it. 
+		 - Stupid problem in move_player(). Fixed now.
+		 - Fixed some bugs in the registration process.
+		 - Added "num.objkeyword" code to 'get', 'drop', 'give', and 'tap'.
+		 - tweaks in 'who', 'where'.. bugfix in 'where'.
+		 - Finished INI manipulation module to lib/INI/Manip.pm, regression 
+			 testing script..
+		 - Fixed up coc.pl ;-) Now works off of 'wc'.
+4/21/01:
+		 - Added a fix for the code that calls HandleIAC() in chunky.pl, and
+			 in HandleIAC() in lib/comm.pl... $data is now reset, so that HandleIAC()
+			 is not unneedlessly called if the user is entering no data. This is 
+			 a necessary fix.
+		 - Updated QueryHelp and Timer modules to use the new ones.

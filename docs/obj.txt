@@ -1,0 +1,83 @@
+                    Objects in ChunkyMUD
+                           By 
+                   Ryan Bastic, 3/23/2001
+                   ----------------------
+
+**************************************************************************
+* The following document is a design for how game objects will be stored *
+* and handled within ChunkyMUD.                                          *
+**************************************************************************
+
+-------------------------
+Part I: Object Attributes
+-------------------------
+
+Short Description: This is the description that displays in a room.
+Long Description: This is the look-description.
+Keywords: Keywords are words which can be used to pickup, drop, or look
+  at an object.
+Item Type: Represent what kind of object it is: PAPER, FOOD, CONTAINER,
+  and so forth.
+Original Location Type: Are they in a room? A player? A monster? A
+  container?
+Original Location Point #1: 
+Original Location Point #2:
+        If an object's LocType is inside a room, then Location Point #1
+      is the zone number they were at. Location Point #2 is the room.
+        If they were in a player, then Location Point #1 is the player's
+      name who is holding the object.
+        If they are in a monster, then Location Point #1 is an index
+      into the monster array representing which monster is holding them.
+        If they are inside a container, then Location Point #1 is an
+      reference to an object in the @world_objs array, representing 
+      which obj is holding them.
+Current Location Type: ...
+Current Location Point #1: ...
+Current Location Point #2: ...
+Effects: Represents whether an object holds particular special attributes,
+  such as a special proc or effect, and things of that nature.
+Weight: How many stones the object takes up
+Value: The object's value in gold
+
+-----------------
+Part II: Boot Time
+-----------------
+
+  At bootup, objects will be created with a specific location in mind:
+  On a particular monster, in a particular room, etc.
+  
+  The object is pushed onto an @obj_vnums array, which is an array of 
+  hashes - all the original objects within the game.
+  
+  This object is then cloned (pushed) onto the @world_objs array, which
+  is a much larger objects array than @obj_vnums, and contains all the 
+  actual objects in the game. 
+  
+  This cloned object is placed in the spot specified by it's OrigLoc/
+  OrigLocType (it's originating zone/room or mob number).
+
+-----------------
+Part III: Players
+-----------------
+
+  Player-interaction with objects involves the following:
+  
+  Players will now have an Inventory attribute, which is basically an 
+  array of references to objects in the @world_objs array. 
+  
+  When they pickup an object, a reference to the object in @world_objs is 
+  pushed onto their Inventory array and the CurLocType/CurLoc1/CurLoc2 is
+  reset to specify the player.
+
+  When they drop it, or give it to another player, the element in their 
+  Inventory array is spliced out, and the object's location is reset to 
+  it's new appropriate value.
+  
+  If they tap (AKA sacrifice, or destroy) the object, then some special
+  logic is used:
+      1. If the object is a container, get all objects inside it, destroy
+         each of them one-by-one, then destroy the container.
+      2. If it is not a container, then simply destroy the object.
+      3. Remove it from the player's inventory.
+
+There may be more at some point, but for now, this is all.

@@ -1,0 +1,14 @@
+May be out of date.
+
+Documentation on state table codes:
+-----------------------------------
+(null)   - Login (enter username)
+  1      - Username entered, password waiting to be entered
+  2      - Command interpreter
+register# - Kludgy way to implement registering new users.
+            1 - Enter desired username. Game checks to see if username is
+                already taken. If it is, you need to re-enter it.
+            2 - Enter desired password. (No confirmation yet ;-)
+            Game then lets you in. :)
+
+

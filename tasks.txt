@@ -1,0 +1,84 @@
+                THE BIG, NASTY, REPULSIVE, GROTESQUE TASK LIST
+                        (and other miscellaneous junk)
+
+  [ At some point, I'll start maintaining this with say, a MySQL database ]
+
+[-- Task List --]
+ Types: E = Enhancement, B = Bug, R = Redesign/cleanup
+Status: D = Done, W = Waiting, I = Investigating, C = Coding, P = Post-poned
+
+Task "ID"-Type-Status-Priority---Description
+    3      E      P      2       Inventory saving/loading code for players - 
+																	* Post-poned until INI::Manip finished..
+    4      E      W      2       Containers.
+    5      E      W      2       Room lighting code (Item Type = "LIGHT")
+    7      E      W      3       Better display routine for 'socials'.. Have the output be sorted and generated in nice even columns like 'ls'... 
+    8      E      P      3       Code documentation, helpfiles
+																 	* Post-poned until further notice
+   13      E      W      1       Wizard code (this is another major for v0.07 - see below)
+	 18      E	    W      1			 Real logging system
+   19	     E	    W      2			 Redo command-processing code so it does not have to do splits, but rather uses substrs to extract the command text
+   20	     R	    W      2			 Change it so player names are stored in lowercase EVERYWHERE - however, whenever displayed cosmetically, they are formatted using format_name(). This should've been done this way since day 1.. Currently, it's done the opposite way.
+	 23		   E      I      1			 Integrate INI::Manip into the code
+	 25      E			W 		 3 			 MOTD code..
+	 28      E			W 		 1 			 Add more socials to the game..
+	 
+   29      ?			? 		 ? 			 Not filled out yet.
+
+* Task entries are deleted when they have been finished.
+
+  Version      Priority   Description
+######################################################################################
+
+Further work
+   on v0.07:   1 Complete Wizard privilege code and commands: level, discon, kill, freeze, reload, purge, load, force
+                 - Also, CircleMUD-style "asshole control" features.. Such as wizlock, etc. Goes with the above
+               1 Real logging system + maintenance utilities for it...
+               1 Finish the socials code:
+                 - Socials data file, and code that generates socials.pl from the data file
+                   (does so at runtime)
+                 - Better display routine for 'socials'.. have the output be sorted, and it
+                   be generated in nice even columns like 'ls'. see Perl Cookbook for details..
+               3 MOTD and IMM-MOTD code.
+               3 Retrieve completed socials from Chaos404 ...
+               3 Retrieve rooms for Confex FuNhOuSe from sandrews ...
+               3 Tons of code documentation (modules, Timer module, how the MUD functions as
+                 a whole, all the state codes, various things, etc., plus an index file
+                 stating the information that all the documents contain.) .. Regenerate
+                 subroutine-list before release, as well.
+
+For v0.08:     - Mobiles/stat code/combat/spells/xp system/armor (Probably in that order)
+							 - Player formations (aka groups)
+							 - Player positions (sitting, standing, resting, combat... etc.)
+               - Shops
+               - Editor, news module
+               - Player descriptions. Extend 'look' so it can also return player's descriptions.
+               - Paging system for looking at text documents.. (sort of like more/less)
+
+For v0.09:     - Zone resets
+               - Player aliases?
+               - notes system, bulletin board code
+
+Documentation To Write:
+-----------------------
+   * Basic code documentation (doc/code.txt)
+   * Terminology notes - hard links, soft links, zones, rooms, emotes, socials
+   * Installation instructions.
+   * Incredibly extensive help files. (super-cross-referenced, one for each command, etc.)
+      - Should hack together a script to help with this process..
+        It should probably read some sort of simple XML markup file...
+
+   Known Bugs/Problems:
+   --------------------
+   - Connecting to the MUD, not logging in at all, and then disconnecting
+     causes the game to attempt to save your character, which doesn't work,
+     because you have not entered a username. It shouldn't even attempt this
+     anyway.
+   - Does deleting the passwd file and then starting up the Chunkster and
+     creating characters still prevent their user/pw combo's from being saved?
+
+   ----------------------------------------------------------------------------
+   Possible source of socials: http://www.valhalla.com/Socials/act.html#accuse
+   NOTE that I have permission to use the socials from www.valhalla.com
+   Good MUD ezine: http://imaginaryrealities.imaginary.com/
+   ----------------------------------------------------------------------------

@@ -1,0 +1,13 @@
+Game Balance Notes (for the Future)
+-----------------------------------
+
+* Start off with the four basic classes (fighter, thief, mage, cleric)..
+	no races for now.
+* Mages will be able to charm monsters + summon elementals by using component
+	elemental stones (a la Medievia & EQ)... makes them more effective for soloing
+	and also tanking.. they advance slower than warriors, have less hps, etc. The usual..
+* Little magic in the game, to the point where mages/clerics are very useful to have around
+* Clerics will not be able to charm things, etc..
+
+The most powerful spells will require components to cast, that will be hard to
+get.. Spells like summon elemental will summon monsters whose power is relative to the player's level..

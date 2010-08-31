@@ -1,0 +1,190 @@
+.starthelp:__default
+                   ChunkyMUD Help System
+     (QueryHelp v1.2 - Modified slightly for ChunkyMUD)
+
+<-------------------------------------------------------------------->
+ 		       The Index of Indexes!
+
+CHUNKYMUD		- Some miscellaneous junk about the Chunkster.
+NAVIGATION		- Navigating the ChunkyMUD Universe!
+COMMUNICATION		- Communication with other players.
+MISCELLANEOUS		- Some miscellaneous commands.
+
+Do 'help <topic>' (without the quotes) to retrieve other help topics.
+.endhelp
+
+.starthelp:communication
+		COMMUNICATION Commands
+		----------------------
+	Commands involved with communication offer forms of, well,
+communication, with other players. This includes sending both public
+and private messages.
+
+* say message
+	- Sends: Bob says, 'message'. to everyone in the room.
+* whisper person message
+	- Sends: Bob whispers something to person, to everyone but you
+	and the receiving person. Sends Bob whispers to you, 'message'.
+	to you. To Bob, it sends You whisper to person, 'message'.
+* tell person message
+	- Similar to above but involves telepathing.
+* shout message
+	- Sends You shout, 'message'. to you. Sends 'Bob shouts, 'message'.'
+	to everyone else.
+* talk person message
+	- You say to person, 'message'.  <-- player
+	- Bob says to person, 'message'. <-- everyone else
+	- Bob says to you, 'message'.	 <-- person
+.endhelp
+.starthelp:test topic
+	this is not used for anything but testing multi-word topics
+
+.endhelp
+
+
+.starthelp:chunkymud
+		ChunkyMUD
+		---------
+	This help index contains all-things ChunkyMUD. What modules I used,
+whose code I used, some short notes on how I designed the system, and so 
+forth.
+
+	DESIGN  - How the system was designed. (NOT AVAILABLE)
+  	 ROUGH  - Rough points of the system, that require improvement.
+	 GOING  - Where this project is going.
+	 TODOS	- Todos and Minor Projects related to this that need to
+		  get done.
+.endhelp
+
+.starthelp:design
+	At the moment, this document is not ready.
+	Design notes are a work in progress, as is the design of this
+	code.				-Ryan
+.endhelp
+
+.starthelp:__design
+
+	ChunkyMUD Design: (as of v0.07)
+	-----------------
+
+	v0.07 is the buzzword-compliant 'bleeding-edge' version 
+of ChunkyMUD. Originally started sometime before December 24, 2000 (The
+earliest date I have written in comments in the code). Between December
+22, I think, and the 27th, a lot of work was also accomplished.
+
+	The original design was very, very rough. I didn't know anywhere
+near as much about Perl as I do now. And my current knowledge still pales
+in comparison to many ;-). Regardless, it had lots more global variables,
+and much dirtier code than it does now. It used psuedo-OO which consisted
+of some global hashes with nested data structures, and accessor methods.
+
+	The coding and refining of QueryHelp, which is the help system by
+myself that is driving this document right now, jumpstarted my Perl OO experience. That, combined with constant work on Perl OO modules at the fantastic company Confex, helped my ideas on software design much. While I admit the current design is not perfect, it is a work in progress, and is progressively getting cleaner.
+
+	ChunkyMUD started with myself toying around with the non-forking
+server example in the Perl Cookbook. It's the easiest way of creating
+a server that can communicate messages between it's clients.
+
+	The code benefits, of course, by some modules I've written to 
+keep some of the code that doesn't really need to be seen, or out in the
+open, hidden. QueryHelp is a really robust help system designed with 
+multi-client servers such as MUDs, mail servers (sendmail, were it written
+in Perl, could easily use QueryHelp to provide it with a help system) in
+mind. In it's initial version (I suppose QueryHelp revision 1) it was located
+as some non-reusable code in 'tmaild', a tiny mail daemon, that I wrote as 
+a fun experiment in Perl. In it's second revision, which was around ChunkyMUD
+v0.04 I believe, it was slightly better designed.
+
+	My OO knowledge around that time was still lacking, however.
+QueryHelp revision 2 loaded all the help topics in in advance. In tmaild,
+it didn't. Bad. Very bad. 
+
+	The current version of QueryHelp is v1.2, aka 'Revision 3'. The
+ChunkyMUD QueryHelp is very slightly modified, I believe I added one line.
+It is full OO, of course. 
+.endhelp
+
+.starthelp:rough
+	A short list of rough points in the system:
+
+	- Pretty much everything.
+	- TELNET handling: MUD clients such as Ewan and Mudmaster send
+	telnet garbage upon connecting. At the moment, this is simply
+	stripped out.
+.endhelp
+
+.starthelp:going
+
+	... Where this project is going ...
+
+	I'm a huge advocate of MUDs. They rock. Like commercial RPG's such
+as AD&D (the table game, not computer AD&D games such as Baldur's Gate) they
+allow you to escape reality. In good measure, that's fantastic!
+
+	And of course, administering, designing, or creating (very different
+things!) allows you to play the part of unholy lord and Master of your
+Universe. Most MUD administrators do what they do because of the feeling they
+get from seeing their Universe succeed.
+
+	However, ChunkyMUD does not aim to create it's own individualistic
+universe. While it may see occasional spurts of playtesting by the author
+in private groups, say, on lunch breaks at Confex, it will most likely not
+be used by him to create his own customized universe.
+
+	Mostly my focus is to mold it into a relatively stable and nice
+template MUD in Perl. I do not have the time to devote to it to be able to label it a 'production MUD', in which the code is robust and high-performance.
+
+	I would love for it to become the DikuMUD of Perl MUDs. There are
+only about 4 Perl MUDs I know about right now - PerlMUD by Boutell,
+lsmud (not recommended), Northlands MUD, and ChunkyMUD. PerlMUD resembles
+TinyMUD, Northlands MUD appears to be taking the course of a customized
+MUD, and ChunkyMUD, well.. Who knows. 
+
+	If you have comments, or would like to help, let me know.
+
+		Unholy Lord and Master of the Chunky Universe,
+						malander
+						tarael200@aol.com
+.endhelp
+
+.starthelp:todos
+	- Cleaner internals, of course.
+	- World module that turns the global %World hash into an object,
+	encapsulating various areas of it with methods the same way that
+	all the Player-related crap was beaten into submission with
+	Player.pm
+	- Typical MUD abbrev code. Text::Abbrev is *NOT* what we want.
+
+	Interested in helping? Can you code in Perl? 
+	tarael200@aol.com wants YOU! 
+.endhelp
+
+.starthelp:navigation
+		Navigation
+		----------
+	This help index contains commands for navigating the world around
+you. Lacking a better place to put certain things, some other 
+related commands are in here:
+
+* north, south, east, west, up, down - All movement commands move in the
+	appropriate direction if that exit is available.
+* brief - If enabled, then you will not see room descriptions when you 
+	type look, or when you enter a room. If disabled, you will.
+	By default it is disabled.
+* autoexit - If enabled (by default it is) then you will see exits upon
+	entering a room, or typing look. If disabled, you will not.
+* look - Sends the room title, room description if brief is disabled,
+	exits if autoexit is enabled, and players currently in the room,
+	to the player.
+.endhelp
+
+.starthelp:miscellaneous
+		Miscellaneous Commands
+		----------------------
+
+'who'		- List of everyone currently connected to the MUD.
+		  This may contain inaccuracies, if say, someone drops
+		  their connection.
+'exits'		- Displays all the exits for a particular room.
+
+.endhelp

@@ -1,0 +1,6 @@
+Miscellaneous Notes about How/Why Things 
+   Were Coded a Particular Way
+----------------------------------------
+
+- Why there might be multiple entries in the 'passwd'
+  file for a single player.

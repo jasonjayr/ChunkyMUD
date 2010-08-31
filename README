@@ -1,0 +1,4 @@
+Problems:
+	If room descriptions do not appear properly, or you have problems logging in,
+make sure such files as conf/passwd and players/* do not contain ^M's on the end
+of each line.. Conflicting Cygwin settings tend to screw this up a lot.
