@@ -1,7 +1,8 @@
                         -----------------------
                         ChangeLog for ChunkyMUD
                         -----------------------
- 
+test!
+
 Changes starting with 0.06:
 ---------------------------
 - Removal of '::main' from everywhere in the code.
