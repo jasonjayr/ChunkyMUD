@@ -5,6 +5,8 @@ test!
 
 test2:
 
+test3
+
 Changes starting with 0.06:
 ---------------------------
 - Removal of '::main' from everywhere in the code.
