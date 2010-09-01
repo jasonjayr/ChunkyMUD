@@ -28,13 +28,35 @@ sub new {
 sub add_event {
   my ($self, $seconds, $subref) = @_;
 
+  $self->{timers}||=[];
+  my ($pkg, $file, $line) = caller;
+  warn "[TIMER] Installed $file:$line";
+
+  my $ev;
+  $ev = AE::timer 0, $seconds, sub {
+	    warn "[TIMER] Activated $file:$line";
+
+		my $newtime = $subref->();
+		if(!$newtime) { 
+			 warn "[TIMER] Deleted  $file:$line";
+
+			#delete timer
+			@{$self->{timers}} = grep { refaddr($_) != refaddr($ev) } @{$self->{timers}};
+		} elsif($newtime != $seconds) { 
+			warn "[DEPRICATED] chunkymud timers: can't change interval from $seconds to $newtime";
+		}
+  };
+  push @{$self->{timers}},  $ev;
+
+  return;
+
   # Do time calculations for the date from now when it will occur
   # Estimated Time of Finishing
-  my $etf = time + $seconds;
-
-  my $counter = $self->{COUNTER};
-  $self->{$counter}{$etf} = $subref;
-  $self->{COUNTER}++;
+#  my $etf = time + $seconds;
+#
+#  my $counter = $self->{COUNTER};
+#  $self->{$counter}{$etf} = $subref;
+#  $self->{COUNTER}++;
 }
 
 ################################################
@@ -43,7 +65,7 @@ sub add_event {
 # it, and then delete the entry.
 sub poll_events {
   my $self = shift;
-
+	die "[DEPRICATED] don't call poll_events";
   foreach (sort keys %$self) {
     next if ($_ eq 'COUNTER');
     my ($key) = keys %{$self->{$_}};

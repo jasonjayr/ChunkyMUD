@@ -17,7 +17,7 @@ sub st_undef {
     send_to_player($client, "Please enter your desired username:");
   } else {
     send_to_player($client, "Password:");                # Send the password prompt
-    client_echo($client, 0);                             # Disable echo
+	#client_echo($client, 0);                             # Disable echo
     $player->State($client, 'WAITPW');                   # Now we are waiting for the password
     $player->StateArgs($client, 1, $request);            # Set the username
   }
@@ -26,7 +26,6 @@ sub st_undef {
 ###############
 sub st_waitpw {
   my ($client, $request) = @_;
-  client_echo($client, 1);                               # Enable echo again
 
   # By here we have a username *and* a password.
   if ($passwd->validate($player->StateArgs($client, 1), $request)) {
@@ -75,12 +74,12 @@ sub st_register {
       $player->State($client, 'REGISTER1');
     } else {
       send_to_player($client, "${nl}That username is available. ${nl}Please enter your desired password:");
-      client_echo($client,0);             # Disable echo
+#client_echo($client,0);             # Disable echo
       $player->StateArgs($client, 1, $username);
       $player->State($client, 'REGISTER2');
     }
   } elsif ($register_code == 2) {
-    client_echo($client, 1);               # Enable echo
+#client_echo($client, 1);               # Enable echo
 
     # By here they've entered a password.
     my $username = $player->StateArgs($client, 1);
@@ -92,7 +91,7 @@ sub st_register {
       $player->State($client, 'REGISTER10');
     } else {
       send_to_player($client, "${nl}Please enter your desired password:");
-      client_echo($client,0);             # Disable echo
+#client_echo($client,0);             # Disable echo
       $player->State($client, 'REGISTER2');
     }
   } elsif ($register_code == 10) {         # Their entering their gender.

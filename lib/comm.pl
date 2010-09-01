@@ -10,7 +10,8 @@ use strict;
 # Send a message to a player.
 sub send_to_player {
   my ($client, $message) = @_;
-  $outbuffer{$client} .= $message if (defined $message);
+  $clients{refaddr $client}->{h}->push_write($message) if defined($message);
+#$outbuffer{$client} .= $message if (defined $message);
 }
 
 ########################################
@@ -81,18 +82,21 @@ sub send_to_all {
 # main loop.
 sub send_direct {
   my ($client, $message) = @_;
-  my $rv = $client->send($message, 0);
+  return send_to_player($client,$message);
 
-  unless (defined $rv) {
-    return;
-  }
-
-  if ($rv == length $message || $! == POSIX::EWOULDBLOCK) {
-    # This is here for no particular reason ;-)
-  } else {
-    # Couldn't write all the data, so shutdown and move on.
-    close_connect($client);
-  }
+#  $clients{refaddr $client}->push_write($message) 
+#  my $rv = $client->send($message, 0);
+#
+#  unless (defined $rv) {
+#    return;
+#  }
+#
+#  if ($rv == length $message || $! == POSIX::EWOULDBLOCK) {
+#    # This is here for no particular reason ;-)
+#  } else {
+#    # Couldn't write all the data, so shutdown and move on.
+#    close_connect($client);
+#  }
 }
 
 ################################################
@@ -101,11 +105,10 @@ sub close_connect {
   my $client = shift;
   my $name = lc($player->Name($client));
 
-  $select->remove($client);
+  #$select->remove($client);
   $player->remove($client);
-  delete $inbuffer{$client};
-  delete $outbuffer{$client};
-  delete $ready{$client};
+  delete $clients{refaddr $client}; 
+
 
   if (exists $plookup{$name}) { delete $plookup{$name} };
   return 1;
@@ -115,8 +118,11 @@ sub close_connect {
 # nonblock($socket) puts a socket into nonblocking mode
 sub nonblock {
   my $socket = shift;
-  my $flags = fcntl($socket, F_GETFL, 0) or die "Can't get flags for socket: $!\n";
-  fcntl($socket, F_SETFL, $flags | O_NONBLOCK) or die "Can't make socket nonblocking: $!\n";
+  $socket->blocking(1);
+	warn '[DEPRICATED] call to chunkymud nonblock()';
+
+  #my $flags = fcntl($socket, F_GETFL, 0) or die "Can't get flags for socket: $!\n";
+  #  fcntl($socket, F_SETFL, $flags | O_NONBLOCK) or die "Can't make socket nonblocking: $!\n";
 }
 
 =begin

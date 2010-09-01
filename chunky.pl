@@ -7,10 +7,15 @@
 #############################################################
 
 #####################################################################
-use vars qw (%inbuffer %outbuffer %ready $port $server $nl $select);
+use vars qw ($port $server $nl  %clients);
 use vars qw (@commands %socials %plookup);
 use vars qw ($World $passwd $player $help $timer);
 use vars qw (%client_echo);
+
+#use Carp::Always;
+use Carp;
+use AnyEvent;
+use AnyEvent::Handle;
 
 #####################################################################
 # Standard Modules
@@ -31,6 +36,7 @@ use lib::QueryHelp;                           # Help module
 use lib::Timer;                               # Timer code
 use lib::Password;                            # Authentication functions
 use lib::INI::Manip;                          # INI Manipulation Module
+use Scalar::Util qw(refaddr);
 
 #########################################################################
 # Load in all the libraries.
@@ -74,99 +80,85 @@ $server = IO::Socket::INET->new(LocalPort => $port,
                                 Listen    => 10 )
            or die "Can't make server socket: $@\n";
            
-tie %ready, 'Tie::RefHash';
-
-nonblock($server);
-$select = IO::Select->new($server);
+$server->blocking(0);
 
 logit("Server started on port $port");
 
-######################
-# [--- Main Loop --] #
-#  Enter the Matrix  #
-while (1) {
-  my ($client, $rv, $data);
+my @SIGNALS;
 
-  foreach $client ($select->can_read(1)) {
-    if ($client == $server) {
-      # Add a new connection
-      $client = $server->accept();
+my $srv_ev;
 
-      printf "[Connect from %s]\n", $client->peerhost;
+my  $cleanup = sub { 
+	print STDERR "CLEANUP!\n";
+	undef $srv_ev;
+	$_->{sock}->close foreach values %clients;
+	$server->close();
+	print STDERR "Safe shutdown done\n";
+	exit(0);
+};
 
-      $select->add($client);
-      send_to_player($client, parseString($World->Welcome()));
-      send_to_player($client, 'Username:');
-      nonblock($client);
-      #client_echo($client, 0);      # Disable echo
-      #client_echo($client, 1);      # Enable echo
-    } else {
-      # Read data
-      $rv = $client->recv($data, POSIX::BUFSIZ, 0);
 
-      unless (defined($rv) && length ($data)) {
-        # This would be the end of the file - close the client
-        close_connect($client);
-        next;
-      }
+push @SIGNALS, 
+	 (AE::signal 'QUIT'  ,$cleanup),
+	 (AE::signal 'INT'   ,$cleanup);
 
-      $inbuffer{$client} .= $data;
-      #$inbuffer{$client} = HandleIAC($client, $inbuffer{$client}, $data);    # Filter special TELNET control codes
-      $data = '';
-      
-      warn "client buffer = $inbuffer{$client}\n\n\n\n";
-      
-      # Test whether the data in the buffer or the data we
-      # just read means there is a complete request waiting
-      # to be fulfilled. If there is, set $ready{$client} to the
-      # requests waiting to be fulfilled.
-      while ($inbuffer{$client} =~ s/(.*\015\012)//) {
-        push @{$ready{$client}}, $1;
-      }
-    }
-  }
+$srv_ev = AE::io $server, 0, sub { 
 
-  # Any complete requests to process?
-  foreach $client (keys %ready) {
-    handle($client);
-  }
 
-  # Process only one client per time through the loop
-  #handle((keys %ready)[0]) if (keys %ready);
+	my ($client);
 
-  # Handle timers.
-  $timer->poll_events();
+	$client = $server->accept();
 
-  # Buffers to flush?
-  foreach $client ($select->can_write(1)) {
-    # Skip this client if we have nothing to say
-    next unless exists $outbuffer{$client};
+	return if !defined($client);
 
-    $rv = $client->send($outbuffer{$client}, 0);
-    unless (defined $rv) {
-      #warn "I was told I could write, but I can't.";
-      next;
-    }
+	print "CONNECTION!:\n";
+	
+	printf "[Connect from %s]\n", $client->peerhost;
+	$client->blocking(0);
+	#nonblock($client);
+	my $inst = {
+		sock=>$client,
+		ready=>[],
+		inbuffer=>'',
+		outbuffer=>'',
+	};
+	$inst->{h} = AnyEvent::Handle->new(
+		fh=>$client,
+	);
+	my $reader;
+	$reader = sub { 
+		my ($h, $line) = @_;
+		print STDERR 'read_line '.refaddr($h)."\n";
+    	$h->push_read(line=>$reader);
+		eval { 
+			print STDERR "read $line\n";
+			push @{$inst->{ready}}, $line;
+			handle($inst);
+			print STDERR "handled!\n";		
+		};
+	};
+	
+	$inst->{h}->push_read(line=>$reader);
 
-    if ($rv == length $outbuffer{$client} || $! == POSIX::EWOULDBLOCK) {
-      substr($outbuffer{$client}, 0, $rv) = '';
-      delete $outbuffer{$client} unless length $outbuffer{$client};
-    } else {
-      # Couldn't write all the data, so shutdown and move on.
-      close_connect($client);
-      next;
-    }
-  }
-}
+	$clients{refaddr $client} = $inst;
+
+	send_to_player($client, parseString($World->Welcome()));
+	send_to_player($client, 'Username:');
+};
+
+
+AE::cv->wait;
+
 
 ######## THE BRAIN #######################################
 # handle($client) handles all pending requests for $client
 sub handle {
-  my $client = shift;
-
-  foreach my $request (@{$ready{$client}}) {
+  my $inst = shift;
+  
+  my $client = $inst->{sock};
+  while( my $request = shift (@{$inst->{ready}}) ) { 
     $request = trim($request);                               # Clean up the data
-
+	warn "handle [$request]";
     #   Simple dispatch table. Normally I'd use a hash, but hash-based dispatch
     # tables do not take particularly well to handling undef values, or matching
     # with regexes, which is what this one requires.
@@ -183,7 +175,6 @@ sub handle {
     }
   }
 
-  delete $ready{$client};
 }
 
 ###########################################################################

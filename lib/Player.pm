@@ -3,6 +3,8 @@
 # -malander 2/19/2001 tarael200@aol.com            #
 ####################################################
 package Player;
+use File::Slurp qw(read_file write_file);
+use Scalar::Util qw(refaddr);
 use strict;
 
 #######################################################################
@@ -81,7 +83,7 @@ sub load_player {
   my ($self, $client) = @_;
   my $name = lc($self->Name($client));
 
-  open PLAYER," players/$name" or (send_to_player($client, "An error occured with loading your pfile.") and close_connect($client) and return);
+  open PLAYER,"players/$name" or (send_to_player($client, "An error occured with loading your pfile.") and close_connect($client) and return);
   # Hopefully this works ;-)
   while (<PLAYER>) {
     my ($method, $value) = split '=';
@@ -96,18 +98,15 @@ sub load_player {
 sub save_player {
   my ($self, $client) = @_;
   my $name = lc($self->Name($client));        # or return;
+	
+  if(!defined($name) || $name eq '') { 
+	warn "Attempt to save player with no name! (client = ".(refaddr $client).")";
+	return;
+  }
+  write_file "players/$name",join("\n", 
+		  map { "$_=".$self->$_($client) } qw(Name Gender Autoexit Brief Curzone Curroom Level Title Abbrev)
+	);
 
-  open PLAYER,"> players/$name" or (&main::logit("Couldn't open player file saving: $!") and return);
-  print PLAYER "Name=" . $self->Name($client) . "\n";
-  print PLAYER "Gender=" . $self->Gender($client) . "\n";
-  print PLAYER "Autoexit=" . $self->Autoexit($client) . "\n";
-  print PLAYER "Brief=" . $self->Brief($client) . "\n";
-  print PLAYER "Curzone=" . $self->Curzone($client) . "\n";
-  print PLAYER "Curroom=" . $self->Curroom($client) . "\n";
-  print PLAYER "Level=" . $self->Level($client) . "\n";
-  print PLAYER "Title=" . $self->Title($client) . "\n";
-  print PLAYER "Abbrev=" . $self->Abbrev($client) . "\n";
-  close PLAYER;
 }
 
 ###############################################################
@@ -122,6 +121,8 @@ sub remove {
 ###########
 sub State {
   my ($self, $client, $code) = @_;
+  warn +(refaddr $client)." State change = $code\n" if $code;
+
   if ($code) { $self->{PLAYERS}{$client}{state} = $code; }
   return $self->{PLAYERS}{$client}{state};
 }

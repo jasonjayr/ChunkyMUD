@@ -1,0 +1,2 @@
+#!/bin/sh
+exec ./chunky.pl -p 4445

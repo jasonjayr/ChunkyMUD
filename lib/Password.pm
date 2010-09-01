@@ -116,11 +116,13 @@ sub load_pw {
   }
 
   while (<PW>) {
+	  chomp;
     my ($username, $password) = split ':';
-    chomp($password);
+#chomp($password);
     $self->{ENTRIES}{$username} = $password;
   }
-
+  use Data::Dumper;
+	print Dumper($self);
   close PW;
   return 1;
 }
