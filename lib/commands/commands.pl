@@ -251,7 +251,7 @@ sub c_look {
     my ($roomtitle, $roomdesc) = $World->getRoomInfo($curzone, $curroom);
     my $exithash = $World->getFormattedExits($curzone, $curroom);
 
-    send_to_player($client, $roomtitle . $nl);
+    send_to_player($client, ($roomtitle||'[unnamed room]') . $nl);
     send_to_player($client, $roomdesc) if (not $player->Brief($client));
 
     # Display players

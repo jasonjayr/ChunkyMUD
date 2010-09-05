@@ -1,2 +1,5 @@
 #!/bin/sh
-exec ./chunky.pl -p 4445
+PORT=4445
+echo "nc localhost $PORT" > ./go
+chmod 755 go
+exec ./chunky.pl -p $PORT

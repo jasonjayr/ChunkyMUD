@@ -39,7 +39,7 @@ sub st_waitpw {
     }
 
     send_to_player($client, "${nl}Login granted! $nl");
-    $player->init_player($client, $username);
+	$player->init_player($client, $username);
     $player->State($client, 'COMMAND');
   } else {
     my $username = lc($player->StateArgs($client, 1));

@@ -9,6 +9,7 @@ package Timer;
 require 5.005_62;
 use strict;
 use warnings;
+use AnyEvent;
 our $VERSION = '1.00';
 
 #######################################################################
@@ -16,12 +17,7 @@ our $VERSION = '1.00';
 
 ############################
 # Create a new Timer object.
-sub new {
-  my $class = shift;
-  my $self = bless({ }, $class);
-  $self->{COUNTER} = 'AAAA';        # Starting counter
-  return $self;
-}
+sub new { bless {}, $_[0] }
 
 #################################################
 # Add a new event for poll_events() to check for.
@@ -34,7 +30,7 @@ sub add_event {
 
   my $ev;
   $ev = AE::timer 0, $seconds, sub {
-	    warn "[TIMER] Activated $file:$line";
+		#warn "[TIMER] Activated $file:$line";
 
 		my $newtime = $subref->();
 		if(!$newtime) { 
@@ -50,40 +46,8 @@ sub add_event {
 
   return;
 
-  # Do time calculations for the date from now when it will occur
-  # Estimated Time of Finishing
-#  my $etf = time + $seconds;
-#
-#  my $counter = $self->{COUNTER};
-#  $self->{$counter}{$etf} = $subref;
-#  $self->{COUNTER}++;
 }
 
-################################################
-# Runs through all the events and for each whose
-# time it is to occur, call the anonymous sub in
-# it, and then delete the entry.
-sub poll_events {
-  my $self = shift;
-	die "[DEPRICATED] don't call poll_events";
-  foreach (sort keys %$self) {
-    next if ($_ eq 'COUNTER');
-    my ($key) = keys %{$self->{$_}};
-
-    if (time >= $key) {
-      # Call the subref inside it, and clean up
-      my $rc = $self->{$_}{$key}->();
-
-      if ($rc) {
-        # The return value should be the number of seconds to repeat at
-        $self->add_event($rc, $self->{$_}{$key});
-        delete $self->{$_};
-      } else {
-        delete $self->{$_};
-      }
-    }
-  }
-}
 
 __END__
 =head1 NAME
@@ -98,9 +62,6 @@ Timer - A simplistic module for maintaining a queue of subroutines to execute
 	my $timer = Timer->new();
 	$timer->add_event(2, sub { print "hello world! \n"; return 2; });
 	print "We're here!\n";
-	$timer->poll_events();
-	sleep 2;
-	$timer->poll_events();
 
 	This prints:
 	We're here!
@@ -118,9 +79,6 @@ Timer - A simplistic module for maintaining a queue of subroutines to execute
               reference. The subroutine reference must return a positive
               number of seconds, if you wish for it to be re-added to the
               queue after the first time it is run.
-  poll_event() accepts no arguments, but instead, loops through the queue
-              and runs all events that have waited up to or past the
-              specified number of seconds.
 
 =head1 DESCRIPTION
 

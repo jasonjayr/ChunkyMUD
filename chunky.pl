@@ -28,6 +28,9 @@ use IO::Select;
 use Socket;
 use Fcntl;
 use Tie::RefHash;
+use JSON;
+use Scalar::Util qw(refaddr);
+use lib "./lib";
 
 #########################################################################
 use lib::Player;                              # Player module
@@ -36,7 +39,7 @@ use lib::QueryHelp;                           # Help module
 use lib::Timer;                               # Timer code
 use lib::Password;                            # Authentication functions
 use lib::INI::Manip;                          # INI Manipulation Module
-use Scalar::Util qw(refaddr);
+use ChunkyMUD::Session;
 
 #########################################################################
 # Load in all the libraries.
@@ -50,113 +53,114 @@ require 'lib/commands/socials.pl';            # Socials
 require 'lib/timers.pl';                      # All the game timers
 require 'lib/defines.pl';                     # All the defines (subroutines used as global constants)
 
-$|++;                                         # No output buffering
-
-##########################
-# Initialize all game data
-init();
 
 ######################
 # Command-Line Parsing
 my %cmd_hash;
-getopt("p:vhd", \%cmd_hash);
-print Cmd_Version() if (exists $cmd_hash{v});
-print Cmd_Usage() if (exists $cmd_hash{h});
 
-# Handle the possibility of enabling debugging...
-if (exists $cmd_hash{d}) {
-  eval { use Data::Dumper };
-  $World->Debug(1);
-  die "$@" if $@;
-  logit("Debugging with Data::Dumper enabled at boot-time...");
-} else {
-  $World->Debug(0);
+# just store a reference to this var.
+MAIN: { 
+	getopt("p:vhd", \%cmd_hash);
+	print Cmd_Version() if (exists $cmd_hash{v});
+	print Cmd_Usage() if (exists $cmd_hash{h});
+
+	my $srv = GoChunkyMUDGo();
+
+
+	AE::cv->wait;
 }
 
-##################
-# Setup the server
-$port = $cmd_hash{p} || $World->DefaultPort();
-$server = IO::Socket::INET->new(LocalPort => $port,
-                                Listen    => 10 )
-           or die "Can't make server socket: $@\n";
-           
-$server->blocking(0);
 
-logit("Server started on port $port");
+=head2 GoChunkyMUDGo
 
-my @SIGNALS;
+This is the main entry point for the mud.  This subroutine returns a reference
+to an AnyEvent watcher, which must be added to your event loop system.
 
-my $srv_ev;
+=cut
 
-my  $cleanup = sub { 
-	print STDERR "CLEANUP!\n";
-	undef $srv_ev;
-	$_->{sock}->close foreach values %clients;
-	$server->close();
-	print STDERR "Safe shutdown done\n";
-	exit(0);
-};
+sub GoChunkyMUDGo { 
+
+	##########################
+	# Initialize all game data
+	init();
 
 
-push @SIGNALS, 
-	 (AE::signal 'QUIT'  ,$cleanup),
-	 (AE::signal 'INT'   ,$cleanup);
+	# Handle the possibility of enabling debugging...
+	if (exists $cmd_hash{d}) {
+		eval { use Data::Dumper };
+		$World->Debug(1);
+		die "$@" if $@;
+		logit("Debugging with Data::Dumper enabled at boot-time...");
+	} else {
+		$World->Debug(0);
+	}
 
-$srv_ev = AE::io $server, 0, sub { 
+	##################
+	# Setup the server
+	$port = $cmd_hash{p} || $World->DefaultPort();
+	$server = IO::Socket::INET->new(LocalPort => $port,
+			Listen    => 10 )
+		or die "Can't make server socket: $@\n";
 
+	$server->blocking(0);
 
-	my ($client);
+	logit("Server started on port $port");
 
-	$client = $server->accept();
+	my @SIGNALS;
 
-	return if !defined($client);
+	my $srv_ev;
 
-	print "CONNECTION!:\n";
-	
-	printf "[Connect from %s]\n", $client->peerhost;
-	$client->blocking(0);
-	#nonblock($client);
-	my $inst = {
-		sock=>$client,
-		ready=>[],
-		inbuffer=>'',
-		outbuffer=>'',
+	my  $cleanup = sub { 
+		print STDERR "CLEANUP!\n";
+		undef $srv_ev;
+		
+		$_->{sock}->close foreach grep { defined $_ && defined $_->{sock} } values %clients;
+		$server->close();
+		print STDERR "Safe shutdown done\n";
+		exit(0);
 	};
-	$inst->{h} = AnyEvent::Handle->new(
-		fh=>$client,
-	);
-	my $reader;
-	$reader = sub { 
-		my ($h, $line) = @_;
-		print STDERR 'read_line '.refaddr($h)."\n";
-    	$h->push_read(line=>$reader);
-		eval { 
-			print STDERR "read $line\n";
-			push @{$inst->{ready}}, $line;
-			handle($inst);
-			print STDERR "handled!\n";		
-		};
-	};
-	
-	$inst->{h}->push_read(line=>$reader);
-
-	$clients{refaddr $client} = $inst;
-
-	send_to_player($client, parseString($World->Welcome()));
-	send_to_player($client, 'Username:');
-};
 
 
-AE::cv->wait;
+	push @SIGNALS, 
+		 (AE::signal 'QUIT'  ,$cleanup),
+		 (AE::signal 'INT'   ,$cleanup),
+		 (AE::timer 3, 1, sub { 
+		  print "Players :\n  ".
+		  join("\n  ", 
+			  map { 
+			  print refaddr($_).":".$player->Name($_)." : ".$player->Dump($_);
+			} $player->getAllClients())."\n" });
+
+
+
+		 return AE::io $server, 0, sub { 
+			 my $client = $server->accept();
+
+			 return if !defined($client);
+
+			 printf "[NEW connect from %s]\n", $client->peerhost;
+
+			 my $session = ChunkyMUD::Session->new($client);
+			
+			 print "Session = $session :".refaddr($session)."\n";
+			 
+
+			 $clients{refaddr $session} = $session;
+
+			 send_to_player($session, parseString($World->Welcome()));
+			 send_to_player($session, 'Username:');
+		 };
+}
+
+
 
 
 ######## THE BRAIN #######################################
 # handle($client) handles all pending requests for $client
 sub handle {
-  my $inst = shift;
+  my $client = shift;
   
-  my $client = $inst->{sock};
-  while( my $request = shift (@{$inst->{ready}}) ) { 
+  while( my $request = shift (@{$client->{ready}}) ) { 
     $request = trim($request);                               # Clean up the data
 	warn "handle [$request]";
     #   Simple dispatch table. Normally I'd use a hash, but hash-based dispatch
