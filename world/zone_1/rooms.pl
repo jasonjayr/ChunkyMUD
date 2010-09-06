@@ -24,7 +24,7 @@ EOD
 
 $main::World->z_setRoomDesc($znum, 1, $desc);
 $main::World->z_setExits($znum, 1, 'e', 2);
-$main::World->z_setExits($znum, 1, 'w', -11);
+$main::World->z_setExits($znum, 1, 'w', 11);
 
 ######################################################################
 $main::World->z_setRoomTitle($znum, 2, 'A walkway in the office');
@@ -163,5 +163,5 @@ $desc = <<"EOD";
 EOD
 
 $main::World->z_setRoomDesc($znum, 11, $desc);
-$main::World->z_setExits($znum, 11, 'e', -1);
+$main::World->z_setExits($znum, 11, 'e', 1);
 $main::World->z_setExits($znum, 11, 'w', '2:1');   # Link to the Village

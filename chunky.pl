@@ -30,6 +30,7 @@ use Fcntl;
 use Tie::RefHash;
 use JSON;
 use Scalar::Util qw(refaddr);
+use Switch qw(Perl6);
 use lib "./lib";
 
 #########################################################################
@@ -66,7 +67,6 @@ MAIN: {
 
 	my $srv = GoChunkyMUDGo();
 
-
 	AE::cv->wait;
 }
 
@@ -84,7 +84,6 @@ sub GoChunkyMUDGo {
 	# Initialize all game data
 	init();
 
-
 	# Handle the possibility of enabling debugging...
 	if (exists $cmd_hash{d}) {
 		eval { use Data::Dumper };
@@ -94,6 +93,7 @@ sub GoChunkyMUDGo {
 	} else {
 		$World->Debug(0);
 	}
+	$World->WalkRooms();
 
 	##################
 	# Setup the server
@@ -114,41 +114,40 @@ sub GoChunkyMUDGo {
 		print STDERR "CLEANUP!\n";
 		undef $srv_ev;
 		
-		$_->{sock}->close foreach grep { defined $_ && defined $_->{sock} } values %clients;
+		$_->disconnect("The world vanishes before your eyes!") foreach grep { defined $_ && defined $_->{sock} } values %clients;
+
 		$server->close();
 		print STDERR "Safe shutdown done\n";
 		exit(0);
 	};
 
-
 	push @SIGNALS, 
 		 (AE::signal 'QUIT'  ,$cleanup),
 		 (AE::signal 'INT'   ,$cleanup),
-		 (AE::timer 3, 1, sub { 
-		  print "Players :\n  ".
-		  join("\n  ", 
-			  map { 
-			  print refaddr($_).":".$player->Name($_)." : ".$player->Dump($_);
-			} $player->getAllClients())."\n" });
-
-
+#		 (AE::timer 3, 1, sub { 
+#		  my @players = $player->getAllClients();
+#		  print "Players :".scalar(@players)."\n  ".
+#		  join("\n  ", 
+#			map { 
+#			  print refaddr($_).":".$player->Name($_)." : ".$player->Dump($_);
+#			} @players)."\n" })
+		 ;
 
 		 return AE::io $server, 0, sub { 
 			 my $client = $server->accept();
-
+					
 			 return if !defined($client);
 
-			 printf "[NEW connect from %s]\n", $client->peerhost;
-
 			 my $session = ChunkyMUD::Session->new($client);
-			
-			 print "Session = $session :".refaddr($session)."\n";
+
+			 # this is a hacky way of keeping a ref to the SIGNALS array
+			 # so their events persist.
+			 if(0) { @SIGNALS } 
 			 
+			 printf "[New connect from %s]\n", $client->peerhost;
 
-			 $clients{refaddr $session} = $session;
-
-			 send_to_player($session, parseString($World->Welcome()));
-			 send_to_player($session, 'Username:');
+			 $session->say(parseString($World->Welcome()));
+			 $session->push_write('Username:');
 		 };
 }
 
@@ -159,24 +158,30 @@ sub GoChunkyMUDGo {
 # handle($client) handles all pending requests for $client
 sub handle {
   my $client = shift;
-  
-  while( my $request = shift (@{$client->{ready}}) ) { 
+ 
+  my $request;
+  while( defined($request = $client->dequeue_command()) ) {
+
     $request = trim($request);                               # Clean up the data
-	warn "handle [$request]";
     #   Simple dispatch table. Normally I'd use a hash, but hash-based dispatch
     # tables do not take particularly well to handling undef values, or matching
     # with regexes, which is what this one requires.
     $player->presence($client, time);
-
-    if (not $player->State($client)) {
-      st_undef($client, $request);
-    } elsif ($player->State($client) eq 'WAITPW') {
-      st_waitpw($client, $request);
-    } elsif ($player->State($client) =~ /^REGISTER/) {
-      st_register($client, $request);
-    } elsif ($player->State($client) eq 'COMMAND') {
-      st_command($client, $request) and display_prompt($client);
-    }
+	if(!defined($player->State($client))) { 
+		st_undef($client, $request);
+	} else { 
+		given $player->State($client) {
+			when 'WAITPW'{
+				st_waitpw($client, $request);
+			}
+			when /^REGISTER/ {
+				st_register($client, $request);
+			}
+			when 'COMMAND' {
+				st_command($client, $request) and display_prompt($client);
+			}
+		}
+	}
   }
 
 }

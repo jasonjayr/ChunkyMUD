@@ -33,19 +33,22 @@ sub st_waitpw {
 
     if (exists($plookup{$username})) {
       my $target = $plookup{$username};
-      send_direct($client, "You are already logged in.. Killing off other connection.. $nl");
-      send_direct($target, "Killing off your connection.. someone else is logging in as you. $nl");
-      close_connect($target);
+      $client->say("You are already logged in.. Killing off other connection.. ");
+	  $target->say("Killing off your connection.. someone else is logging in as you.");
+	  # TODO: I think the new connection should yoink the
+	  # in-memory player state.
+	  $client->Player($target->Player);
+	  $target->disconnect();
     }
 
-    send_to_player($client, "${nl}Login granted! $nl");
+    $client->say("${nl}Login granted!");
 	$player->init_player($client, $username);
     $player->State($client, 'COMMAND');
   } else {
     my $username = lc($player->StateArgs($client, 1));
     logit("Login failed on " . localtime(time) . " with user $username");
-    send_direct($client, "${nl}Login failed. $nl");
-    close_connect($client);
+    $client->say("${nl}Login failed.");
+	$client->disconnect();
   }
 }
 
@@ -62,7 +65,7 @@ sub st_register {
     my $username = lc($request);
 
     if ($username =~ /[^\w]/) {
-      send_to_player($client, "Your username may contain nothing but word characters! $nl");
+      $client->say("Your username may contain nothing but word characters!");
       send_to_player($client, "Please enter your desired username:");
     }
 
@@ -74,7 +77,7 @@ sub st_register {
       $player->State($client, 'REGISTER1');
     } else {
       send_to_player($client, "${nl}That username is available. ${nl}Please enter your desired password:");
-#client_echo($client,0);             # Disable echo
+		#client_echo($client,0);             # Disable echo
       $player->StateArgs($client, 1, $username);
       $player->State($client, 'REGISTER2');
     }
@@ -97,7 +100,7 @@ sub st_register {
   } elsif ($register_code == 10) {         # Their entering their gender.
     # We only want an 'm' or an 'f' right now.
     if ($request !~ /^[mf]$/) {
-      send_to_player($client, "That is an invalid choice! $nl");
+		$client->say( "That is an invalid choice!");
       send_to_player($client, "Gender ([m]ale/[f]emale): ");
       $player->State($client, 'REGISTER10');
     } else {
@@ -170,12 +173,12 @@ sub st_command {
   move_on:
   # If a command's return code is not a number then it's an error message.
   if ($rc !~ /^\d/) {
-    send_to_player($client, "$rc $nl");
+	  $client->say($rc);
   }
 
   # Handle sending an outgoing error message if no command was accepted.
   if (not defined $rc) {
-    send_to_player($client, "Thou must be confused. $nl");
+	  $client->say("Thou must be confused.");
     $rc = 1;
   }
 

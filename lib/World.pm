@@ -111,10 +111,10 @@ sub getFormattedExits {
 
     my $link = $self->{'Zone_'.$curzone}{Rooms}{exits}{$fc}[$curroom];
     # Is the link hard or sort?
-    if ($link !~ /:/ and $link > 0) {
+    if (defined($link) && $link !~ /:/ and $link > 0) {
       # Soft link - just snatch up the title.
       $exithash{$_} = $self->{'Zone_'.$curzone}{Rooms}{title}[$link];
-    } else {
+    } elsif(defined $link) {
       my ($zonenum, $roomnum) = split ':', $link;
       if ($roomnum > 0) {
         $exithash{$_} = $self->{'Zone_'.$zonenum}{Rooms}{title}[$roomnum];
@@ -128,6 +128,68 @@ sub getFormattedExits {
   } else {
     return \%exithash;
   }
+}
+
+use Data::Dumper;
+
+sub WalkRooms { 
+	my ($self) = @_;
+
+	my %seen;
+
+	my @stack;
+	push @stack, '1:1';
+	
+	my @exits = split //, 'nsweup';
+	my ($zone, $room);	
+	my $r = sub { 
+		my ($roomkey,$key) = @_;
+		if(!$key) { $key = $roomkey; $roomkey = $room; }
+
+		$self->{'Zone_'.$zone}{Rooms}{$key}[$roomkey];
+	};
+	my $re = sub { 
+		my ($roomkey,$dir) = @_;
+		if(!$dir) { $dir = $roomkey; $roomkey = $room; }
+
+		$self->{'Zone_'.$zone}{Rooms}{exits}{$dir}[$roomkey];
+	};
+
+	print qq|digraph ChunkyMUD { \n |;
+
+	while(@stack) { 
+		($zone,$room) = split /:/,pop @stack;
+		next if $seen{"$zone:$room"};
+		$seen{"$zone:$room"} = 1;
+
+		my $title = $r->('title');
+		my %exits;
+
+		foreach my $dir (@exits) { 
+			my $link = $re->($dir);
+			if(defined($link)) { 
+			
+				if($link !~ m/:/) { 
+					$link = "$zone:$link";
+				}
+				$exits{$dir} = $link;
+				push @stack, $link;;
+			}
+			
+		}
+		printf qq|  room_z%ir%i [label="%s"];\n|, $zone, $room, $title;
+
+		printf qq|  room_z%ir%i -> room_z%ir%i [label="%s"];\n|,
+			   $zone, $room,
+			   split(/:/, $exits{$_}),
+			   $_ foreach keys %exits;
+
+		#print Dumper({title=>$title, ex=>\%exits});
+	}
+
+	print qq| }\n |;
+
+	exit;
 }
 
 #######################################

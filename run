@@ -1,5 +1,5 @@
 #!/bin/sh
-PORT=4445
+PORT=4444
 echo "nc localhost $PORT" > ./go
 chmod 755 go
 exec ./chunky.pl -p $PORT

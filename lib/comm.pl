@@ -56,11 +56,11 @@ sub send_to_room {
 sub send_to_room_except {
   my ($clientfrom, $clientto, $message) = @_;
   my @sendto = $player->getClientsInRoom($clientfrom);
-
+  
   # Now we want to exclude from the other..
-  foreach (@sendto) {
-    next if ($_ eq $clientto||'' or $_ eq $clientfrom||'');
-    send_to_player($_, $message);
+  foreach (grep { $_ } @sendto) {
+    next if ($_ eq ($clientto||'') or $_ eq ($clientfrom||''));
+	$_->say($message);
   }
 }
 
@@ -89,16 +89,14 @@ sub send_direct {
 # Close a specific connection. Pass it a client.
 sub close_connect {
   my $client = shift;
-  my $name = lc($player->Name($client));
 
-  #$select->remove($client);
+  my $name = $client->Player->NormalizedName();
+ 
   $player->remove($client);
-  $client->handle->push_shutdown;
+  
+  $client->disconnect();
 
-  delete $clients{refaddr $client}; 
-
-
-  if (exists $plookup{$name}) { delete $plookup{$name} };
+   if (exists $plookup{$name}) { delete $plookup{$name} };
   return 1;
 }
 

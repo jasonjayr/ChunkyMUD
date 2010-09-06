@@ -8,6 +8,7 @@ use Scalar::Util qw(refaddr blessed);
 use JSON;
 use Carp;
 use strict;
+use ChunkyMUD::Player;
 
 our @fields;
 our @persist_fields;
@@ -25,65 +26,38 @@ our @persist_fields;
 		$c->add_method($field=>sub { 
 			my ($self, $client, $value) = @_;
 			
-			if (defined($value)) { P($client)->{$lcfield} = $value; }
-			return P($client)->{$lcfield};
+			if(@_ == 2) { 
+				$client->Player->$field();
+			} else { 
+				$client->Player->$field($value);
+			}
+
+			#return P($client)->{$lcfield};
 		});
 	}
 
 	$c->make_immutable();
 }
 
-
-
-# TODO: i'd rathre this be a proper object
-# but this macro lets makes it easier to work with in the interm
-sub P { 
-	my $client = shift;
-	
-	confess "Client is not defined!" unless $client;
-
-	$client->Player;
-
-}
-
-
-sub Dump { return to_json(P($_[1])) }
-
 #######################################################################
 ########################## PUBLIC #####################################
 
-#############################
-# Create a new Player object.
-sub new {
-  my ($class, $filename) = @_;
-  my $self = bless({ } , $class);
-  my $hashref = { };
-#tie %$hashref, 'Tie::RefHash';
-#$self->{PLAYERS} = { };
-  return $self;
-}
 
 ############################################################
 # Add a player's necessary data after he has been validated.
 sub init_player {
   my ($self, $client, $name, $gender) = @_;
+ 
 
-  $name = $self->Name($client, $self->format_name($name));    # Set the name
-  $self->Abbrev($client, 0);                                  # Abbrev defaults to off
-  $self->Gender($client, $gender);                            # Set the gender
-
-  # If they exist, load them.
-  if ($self->exists_player($client)) {
-    $self->load_player($client);
-  } else {
-    # Apparently they don't exist, so set them up with some crap.
-    $self->create_new_player($client);
-  }
+  my $newplayer = ChunkyMUD::Player->new($name);
+  $client->Player($newplayer);
+ 
+  $newplayer->Load();
 
   $main::plookup{lc($name)} = $client;      # Initialize entry in the plookup table
   &main::c_look($client);                   # Send room desc
   &main::display_prompt($client);           # Send prompt to player
-#print "WTF!\n";
+
   # Announce their presence.
   &main::send_to_all("The Lord of Code shouts, '$name enters the game!'. $main::nl");
 }
@@ -94,94 +68,29 @@ sub create_new_player {
   my ($self, $client) = @_;
 
   # Do not set the name here - it's already set.
-  $self->State($client, 'COMMAND');
-  $self->Abbrev($client, 0);
-  $self->Autoexit($client, 1);
-  $self->Brief($client, 0);
-  $self->Curzone($client, 2);
-  $self->Curroom($client, 1);
-  $self->Level($client, 1);
+  $client->State('COMMAND');
 
   # Save it.
+  $client->Player->Save();
   $self->save_player($client);
-}
-
-############################################
-# Check to see if a player has a playerfile.
-sub exists_player {
-  my ($self, $client) = @_;
-  my $name = lc($self->Name($client));
-
-  if (-e "players/$name.js") {
-    return 1;
-  } else {
-    return 0;
-  }
-}
-
-################
-# Load a player.
-sub load_player {
-  my ($self, $client) = @_;
-  my $name = lc($self->Name($client));
-	
-  my $file = "players/$name.js";
-
-  if(-e $file) {  
-	eval { 
-		my @lines = read_file $file; 
-
-		my $hash = from_json(join('',@lines));
-	
-		# Hopefully this works ;-)
-		foreach my $field (keys %$hash) { 
-
-			$self->$field($client, $hash->{$field}) if (defined($hash->{$field}));
-		}
-	
-	};
-	if($@) { 
-		warn "Cannot read load pfile for $name: (file = $file): $!, $@";
-		send_to_player($client, "An error occured with loading your pfile.");
-		close_connect($client);
-	}
-  }
-}
-
-#######################
-# Save the player data.
-sub save_player {
-	my ($self, $client) = @_;
-	my $name = lc($self->Name($client));        # or return;
-
-	if(!defined($name) || $name eq '') { 
-		warn "Attempt to save player with no name! (client = ".(refaddr $client).")";
-		return;
-	}
-	write_file "players/$name.js",
-			   to_json(
-					   { map { ( $_=>$self->$_($client) ) } @persist_fields },
-					   {pretty=>1}
-					);
-
 }
 
 ###############################################################
 # Save a player's structure, then eliminate it from the object.
 sub remove {
   my ($self, $client) = @_;
-  $self->save_player($client);
-  $client->Player({});
+  $client->Player->Save();
+  $client->logout;
   return 1;
 }
 
 ###########
 sub State {
   my ($self, $client, $code) = @_;
-  warn +(refaddr $client)." State change = $code\n" if $code;
+  $client->log(debug=>"State change $code") if $code;
 
-  if ($code) { P($client)->{state} = $code; }
-  return P($client)->{state};
+  if ($code) { $client->State($code); }
+  return $client->State;
 }
 
 ###############
@@ -190,16 +99,16 @@ sub StateArgs {
 
   if ($value and $whichone) {
     # Set the state args
-    P($client)->{"state_$whichone"} = $value;
+    $client->{"state_$whichone"} = $value;
   } else {
     #   If we ever add more state arguments than 2, this should be made smarter
     # getting all the keys of P($client)->, and grepping out the
     # ones that begin with 'state_'.
     if (!$whichone) {
       # They want both
-      return (P($client)->{state_1}, P($client)->{state_2});
+      return ($client->{state_1}, $client->{state_2});
     } else {
-      return P($client)->{"state_$whichone"};
+      return $client->{"state_$whichone"};
     }
   }
 }
@@ -208,8 +117,8 @@ sub StateArgs {
 ##############
 sub presence {
   my ($self, $client, $time) = @_;
-  if ($time) { P($client)->{ACTIVE_ON} = $time; }
-  return P($client)->{ACTIVE_ON};
+  if ($time) { $client->{ACTIVE_ON} = $time; }
+  return $client->{ACTIVE_ON};
 }
 
 
@@ -220,7 +129,7 @@ sub presence {
 # Return a list of objects in the player's inventory.
 sub getInventory {
   my ($self, $client) = @_;
-  return P($client)->{Inventory};
+  return $client->Player->{Inventory};
 }
 
 ####################
@@ -229,12 +138,12 @@ sub manipInventory {
 
   if ($action eq "ADD") {
     # $obj is a number in this case.
-    return (push(@{P($client)->{Inventory}}, $obj) - 1);
+    return (push(@{$client->Player->{Inventory}}, $obj) - 1);
   } elsif ($action eq "DELETE") {
     # Find out where in the inventory the object is. $obj is a number in this case.
-    for my $i (0 .. @{P($client)->{Inventory}}) {
-      if (P($client)->{Inventory}[$i] eq $obj) {
-        splice (@{P($client)->{Inventory}}, $i, 1);
+    for my $i (0 .. @{$client->Player->{Inventory}}) {
+      if ($client->Player->{Inventory}[$i] eq $obj) {
+        splice (@{$client->Player->{Inventory}}, $i, 1);
         return 1;
       }
     }
@@ -255,31 +164,9 @@ sub manipInventory {
 sub getAllClients {
   my $self = shift;
 	
-  return map { $_->{sock} } grep { exists($_->{PLAYER}) && $_->{sock} } values %main::clients;
-
+  return grep { $_->has_player } values %main::clients;
 }
 
-################################################################################
-# Returns each client in a sequential order. So if you have 3 clients signed on,
-# then calling this once returns the first client, calling it twice returns the
-# second, etc. Basically for use by playerfile-saving queue code. Be forewarned,
-# it gets pretty glitchy with people signing on/off, etc.
-sub get_client_ZOMG {
-  my $self = shift;
-
-  my $pl_count = $self->_player_count();
-  $self->_player_count($pl_count + 1);
-
-  my @clients = $self->getAllClients();  # Get the number of clients
-
-  # Sanity-checking for possible overflows...
-  if ($pl_count > (scalar(@clients) - 1)) {
-    $self->_player_count(1);             # Reset the counter to the 2nd one
-		return shift(@clients) || "";
-  } else {
-		return $clients[$pl_count] || ""; 
-  }
-}
 
 ################################
 # Return an array containing the
@@ -287,16 +174,8 @@ sub get_client_ZOMG {
 # the current room.
 sub getPlayersInRoom {
   my ($self, $client) = @_;
-  my $curroom = $self->Curroom($client);
-  my $curzone = $self->Curzone($client);
-
-  my @array;
-  foreach ($self->getAllClients()) {
-    next if ($client eq $_);
-    push(@array, $self->Name($_)) if ($self->Curroom($_) == $curroom and $self->Curzone($_) == $curzone);
-  }
-
-  return @array if (@array);
+  
+  return map { $_->Player->Name } $self->getClientsInRoom($client);
 }
 
 ################################
@@ -305,16 +184,17 @@ sub getPlayersInRoom {
 # in the current room.
 sub getClientsInRoom {
   my ($self, $client) = @_;
-  my $curzone = $self->Curzone($client);
-  my $curroom = $self->Curroom($client);
+  my $curroom = $client->Player->Curroom;
+  my $curzone = $client->Player->Curzone;
 
   my @array;
   foreach ($self->getAllClients()) {
-    #next if ($client eq $_);
-    push(@array, $_) if ($self->Curroom($_) == $curroom and $self->Curzone($_) == $curzone);
+    next if ($client eq $_);
+    push(@array, $_) if ($_->Player->Curroom == $curroom and $_->Player->Curzone == $curzone);
   }
 
   return @array if @array;
+  return;
 }
 
 ################################
@@ -353,8 +233,8 @@ sub getClientsInZone {
 ################
 sub getNameStr {
   my ($self, $client) = @_;
-  my $name = $self->Name($client);
-  my $title = $self->Title($client);
+  my $name = $client->Player->Name;
+  my $title = $client->Player->Title;
 
   my $retstr = $name;
   $retstr .= " $title" if ($title);
