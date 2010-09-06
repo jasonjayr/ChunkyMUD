@@ -1,0 +1,321 @@
+$VAR1 = bless( {
+                 'FILENAME' => 'conf/passwd',
+                 'ENTRIES' => {
+                                'malander' => 'malander',
+                                'asdf' => 'asdf'
+                              }
+               }, 'Password' );
+$VAR1 = bless( {
+                 'DEBUG' => 0,
+                 'Zone_2' => {
+                               'Rooms' => {
+                                            'exits' => {
+                                                         'w' => [],
+                                                         'e' => [],
+                                                         'u' => [],
+                                                         'n' => [
+                                                                  undef,
+                                                                  2
+                                                                ],
+                                                         'd' => [],
+                                                         's' => [
+                                                                  undef,
+                                                                  '1:11',
+                                                                  1
+                                                                ]
+                                                       },
+                                            'desc' => [
+                                                        undef,
+                                                        '    This dirt road is worn from the heels of many a weary traveler. To the north
+lies a path to the sacred Village of the Camel. To the south lay a glowing red
+portal - the Entrance to the Confex FuNhOuSe.
+',
+                                                        '    Well, this is the end of the line for now until Malander builds more rooms.
+'
+                                                      ],
+                                            'title' => [
+                                                         undef,
+                                                         'On a dirt road',
+                                                         'Before the Village'
+                                                       ]
+                                          },
+                               'Authors' => 'malander',
+                               'Title' => 'Village of the Camel'
+                             },
+                 'GOODBYE' => '
+         mJXXLm.                   
+        JXXXXXXXXL.       JXXLm.          Thanks for playing!
+       {XXXXXXXXXXX.     JXXXmXXXXm
+      .XXXXXXXXXXXXXL.  {XXXXXXXXXF       The camel on the left represents
+     JXXXXXXXXXXXXXXXXL.`XXXXXX.      the programming language this game
+    JXXXXXXXXXXXXXXXXXXXmXXXXXXX.     was written in. Perl.
+  .XXXXXXXXXXXXXXXXXXXXXXXXXXXXX}          
+ .XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX          ChunkyMUD could not have been
+ JXXXXXXXXXXXXXXXXXXXXXXXXXXXXXF      possible without the following people:
+ XX^7XXXXXXXXXXXXXXXXXXXXXXXXXF       
+ XX {XXXFXXXXXXXXXXXXXXXXXXXF\'          - Anyone in #perl on DALNet:
+ `X}{XXX\'7XXXFXXXXX^XXXXX `\'                    japhy, BeernuT, converter,
+  `\'XXX\' {XXX\'XXXXX 7XXXF                       and any others I missed,
+   .XX}  {XXF {XXXX}`XXX}                       especially
+   {XX   `XXL  `7XX} 7XX}               - Aaron Sokoloski, Jason Rodrigues,
+   `XX    `XXL mXXF  {XX                  Mike Lambert, and others for
+    XX      7XXXF    `XX                  answering various questions I had..
+    XX.    JXXXX.     7X.               - The coder of the non-forking server
+   {XXL    7XF7XXX.   {XX                 example in the Perl Cookbook,
+   `XXX\'              `XXXm               whoever you are.
+                       ^^^^^       
+
+',
+                 'XNAMES' => [
+                               'new',
+                               'fuck',
+                               'shit',
+                               'ass',
+                               'piss',
+                               'faggot',
+                               'poop'
+                             ],
+                 'Objects' => {
+                                'VNUMS' => [
+                                             '',
+                                             {
+                                               'Value' => 10,
+                                               'Weight' => 1,
+                                               'Keywords' => 'test object',
+                                               'ShortDesc' => 'There is a test object lying in the dust.',
+                                               'CurLocType' => 1,
+                                               'ItemType' => ' ',
+                                               'OrigLocType' => 1,
+                                               'CurLoc1' => 2,
+                                               'LongDesc' => 'Looking at this object, you realize, that it just for testing',
+                                               'OrigLoc2' => 1,
+                                               'CurLoc2' => 1,
+                                               'Effects' => ' ',
+                                               'Name' => 'the test object',
+                                               'OrigLoc1' => 2
+                                             },
+                                             {
+                                               'Value' => 1,
+                                               'Weight' => 1,
+                                               'Keywords' => 'code stick test malander',
+                                               'ShortDesc' => 'A short stick inscribed with the symbols $@%.',
+                                               'CurLocType' => 1,
+                                               'ItemType' => 'LIGHT',
+                                               'OrigLocType' => 1,
+                                               'CurLoc1' => 2,
+                                               'LongDesc' => 'A short, thin stick...',
+                                               'OrigLoc2' => 2,
+                                               'CurLoc2' => 2,
+                                               'Effects' => 'NOTAKE',
+                                               'Name' => 'the coding stick of Malander',
+                                               'OrigLoc1' => 2
+                                             }
+                                           ],
+                                'IN_GAME' => [
+                                               '',
+                                               {
+                                                 'Value' => 10,
+                                                 'Weight' => 1,
+                                                 'OrigNum' => 1,
+                                                 'Keywords' => 'test object',
+                                                 'ShortDesc' => 'There is a test object lying in the dust.',
+                                                 'CurLocType' => 1,
+                                                 'OrigLocType' => 1,
+                                                 'ItemType' => ' ',
+                                                 'OrigLoc2' => 1,
+                                                 'LongDesc' => 'Looking at this object, you realize, that it just for testing',
+                                                 'CurLoc1' => 2,
+                                                 'CurLoc2' => 1,
+                                                 'OrigLoc1' => 2,
+                                                 'Name' => 'the test object',
+                                                 'Effects' => ' '
+                                               },
+                                               {
+                                                 'Value' => 1,
+                                                 'Weight' => 1,
+                                                 'OrigNum' => 2,
+                                                 'Keywords' => 'code stick test malander',
+                                                 'ShortDesc' => 'A short stick inscribed with the symbols $@%.',
+                                                 'CurLocType' => 1,
+                                                 'OrigLocType' => 1,
+                                                 'ItemType' => 'LIGHT',
+                                                 'OrigLoc2' => 2,
+                                                 'LongDesc' => 'A short, thin stick...',
+                                                 'CurLoc1' => 2,
+                                                 'CurLoc2' => 2,
+                                                 'OrigLoc1' => 2,
+                                                 'Name' => 'the coding stick of Malander',
+                                                 'Effects' => 'NOTAKE'
+                                               }
+                                             ],
+                                'REUSE' => []
+                              },
+                 'Zone_1' => {
+                               'Rooms' => {
+                                            'exits' => {
+                                                         'w' => [
+                                                                  undef,
+                                                                  -11,
+                                                                  undef,
+                                                                  undef,
+                                                                  2,
+                                                                  undef,
+                                                                  4,
+                                                                  undef,
+                                                                  9,
+                                                                  undef,
+                                                                  undef,
+                                                                  '2:1'
+                                                                ],
+                                                         'e' => [
+                                                                  undef,
+                                                                  2,
+                                                                  4,
+                                                                  undef,
+                                                                  6,
+                                                                  undef,
+                                                                  undef,
+                                                                  undef,
+                                                                  undef,
+                                                                  8,
+                                                                  undef,
+                                                                  -1
+                                                                ],
+                                                         'u' => [],
+                                                         'n' => [
+                                                                  undef,
+                                                                  undef,
+                                                                  undef,
+                                                                  2,
+                                                                  5,
+                                                                  undef,
+                                                                  undef,
+                                                                  6,
+                                                                  7,
+                                                                  10
+                                                                ],
+                                                         'd' => [],
+                                                         's' => [
+                                                                  undef,
+                                                                  undef,
+                                                                  3,
+                                                                  undef,
+                                                                  undef,
+                                                                  undef,
+                                                                  7,
+                                                                  8,
+                                                                  undef,
+                                                                  undef,
+                                                                  9
+                                                                ]
+                                                       },
+                                            'desc' => [
+                                                        undef,
+                                                        '        Here you at the entrance to a Microsoft Competitor. We hate Microsoft.
+Or perhaps the creator of this strange universe hates Microsoft... Anyway,
+that\'s not important! What\'s important is that you happen to be standing in
+a floating void with only one exit! How could that have gone unnoticed..?
+Stepping through that aforementioned exit, has no way back.. How could you
+have forgotten to say that... Wait... Does that make sense?... If you didn\'t
+know that, how could you have said that.... Bork42! Bork42! Hut, hut, hike!
+',
+                                                        '        A walkway into the Confex Office, ahead you can see blindingly bright
+overhead lights on. Strange, considering there are COMPUTER MONITORS in this
+office. In fact, these lights are Glare-o-Matic brand, designed for 100%
+maximum screen glare creation. They\'re even XML-Optimized, Java-Compatible,
+and Buzzzzzzzz-Word Compliant.
+
+        Step into the light, Homer!
+        OWWWWWWWWW!!
+
+        You could checkout the closet to the south!
+',
+                                                        '      Pointer Error! - This room description was lost because Malander is a
+  poopy-head!
+',
+                                                        '        The light is stronger here -- strong enough to make one\'s eyes
+flinch. To the north is a broken window, that Building Maintenance has not
+yet repaired. For a month. Confex employees have not put warning signs around
+it, but rather, a Sharpie was used to scrawl the following on the wall near it:
+        "Stressed from debugging? Out you go!"
+',
+                                                        '        Suicide is not the answer to fixing a bug!
+Thy salvation lies within the statements, two - warn() and caller()!
+If tis the Camel you seek, then go to the Cave of the Unix Sysadmin --
+Richard\'s Desk, and thou shalt find it there!
+',
+                                                        '        You are in a wide-open office environment, comprising the open
+communications philosophy of Confex. Have you registered your AIM name yet?
+',
+                                                        '        Out of a strange mist, you see \'out of control\' teenagers wearing
+bowties and JAPH shirts with giant Camels on the back. Mr. Springer is
+preaching faint banter about \'What a travesty these so-called Perl Users
+are...\', but you can barely make out what he is saying.
+',
+                                                        '        The yellow brick road,
+        the yellow brick road,
+        follow it blindly,
+        and you shan\'t find Gold Code.
+
+        The yellow brick road,
+        the yellow brick road,
+        comment code kindly,
+        and shiny code will appear in thy abode!
+',
+                                                        '        You are on the road to the Grinch\'s House. Or maybe, you are
+on the road away from it. It\'s the same freakin\' road!
+
+        But this code, be not gold,
+        So it doesn\'t know,
+        whether your bold,
+        or your feet are cold!
+',
+                                                        '        His name is Jeff. He gets flustered easily while debugging. Lusers
+commonly assume him as the Unstoppable Generator of Entropy in the Computer
+Software Universe. As a result, he has earned several titles:
+
+        \'Jeff, Bringer of Bugs\', \'Coder of Catastrophes\', \'Bearer of Bad
+News Belating the Arrival of Bugs\'..
+
+        You don\'t want to get on his bad side. Or he might unlink() you.
+',
+                                                        '        This is a test of the emergency "illusionary wall" code.
+        Please stand by.
+'
+                                                      ],
+                                            'title' => [
+                                                         undef,
+                                                         'Entrance to the Confex FuNhOuSe',
+                                                         'A walkway in the office',
+                                                         'The office coat-storage facility aka The Closet',
+                                                         'A walkway in the office',
+                                                         'Out a broken window!',
+                                                         'A wide-open office environment',
+                                                         'In front of a live airing of Jerry Springer...',
+                                                         'A path on the yellow brick road',
+                                                         'The road to the Grinch\'s House',
+                                                         'oh NO IT\'S THE GRINCH, RUN AWAY!',
+                                                         'This is a test'
+                                                       ]
+                                          },
+                               'Authors' => 'malander/sandrews',
+                               'Title' => 'Confex FuNhOuSe'
+                             },
+                 'LISTZONE' => 'List of ChunkyMUD Zones
+-----------------------
+Zone # - Title/Authors
+2 - Village of the Camel (malander)
+1 - Confex FuNhOuSe (malander/sandrews)',
+                 'STARTTIME' => 1283756248,
+                 'DEFPORT' => 4000,
+                 'WELCOME' => ' 
+  Welcome to ChunkyMUD Version %VERSION% :-)
+  Written by malander - tarael200@aol.com
+  With help from my minions :)
+
+  Please login - Enter \'new\' for a username if you wish
+  to create a new account.
+
+',
+                 'VERSION' => '0.07r9'
+               }, 'World' );
